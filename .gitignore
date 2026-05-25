@@ -9,3 +9,5 @@ venv/
 .DS_Store
 *.log
 agent_memory.json
+.agent_memory/
+agent_audit.jsonl
