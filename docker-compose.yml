@@ -1,0 +1,36 @@
+# Production deployment: FastAPI app behind Caddy (automatic HTTPS).
+#
+# Quick start:
+#   1. cp .env.example .env   &&   fill in the values
+#   2. set DOMAIN=your-domain.com in .env (must point its DNS A record here)
+#   3. docker compose up -d --build
+#
+# Caddy auto-provisions and renews Let's Encrypt certificates for DOMAIN.
+# Feishu card callback URL becomes:  https://${DOMAIN}/feishu/card/callback
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    expose:
+      - "8000"
+    # No host ports published — only Caddy talks to the app over the internal network.
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:

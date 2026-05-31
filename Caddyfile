@@ -1,0 +1,14 @@
+# Caddy reverse proxy with automatic HTTPS (Let's Encrypt).
+# DOMAIN is injected from the environment via docker-compose.
+{$DOMAIN} {
+	# Forward all traffic to the FastAPI app container on the internal network
+	reverse_proxy app:8000
+
+	# Reasonable timeouts; Feishu requires a callback response within ~3s
+	encode gzip
+
+	log {
+		output stdout
+		format console
+	}
+}
