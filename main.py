@@ -42,7 +42,7 @@ def main():
         print(f"Error: {e}")
         sys.exit(1)
 
-    lang = "en"
+    lang = "zh"
     print(HELP_TEXT[lang])
 
     while True:

@@ -45,7 +45,7 @@ class Agent:
         model: str = "claude-sonnet-4-6",
         max_tokens: int = 4096,
         long_term_memory=None,
-        language: str = "en",
+        language: str = "zh",
     ):
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
