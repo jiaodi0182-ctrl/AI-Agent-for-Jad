@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes.chat import router as chat_router
+from api.routes.feishu import router as feishu_router
 from api.routes.memory import router as memory_router
 
 app = FastAPI(
@@ -26,6 +27,7 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(memory_router)
+app.include_router(feishu_router)
 
 
 @app.get("/health")
