@@ -21,6 +21,23 @@ Think step by step. When a task requires multiple steps, plan and execute them i
 Always use tools when they would give better results than your training knowledge alone.
 Respond in the same language the user writes in."""
 
+_CHINESE_SYSTEM = """你是 Jad 的私人 AI 助手。你聪明、高效、直接，始终以中文回复。
+
+你可以使用以下工具：
+- web_search：搜索互联网获取最新信息
+- read_file / write_file：读写本地文件系统中的文件
+- run_python：执行 Python 代码进行计算和数据处理
+- list_directory：浏览文件系统目录
+
+遇到复杂任务时，先逐步思考再分步执行。
+当工具能提供比训练知识更好的结果时，优先使用工具。
+始终使用中文回复，保持回答简洁清晰。"""
+
+LANGUAGE_SYSTEMS = {
+    "en": _BASE_SYSTEM,
+    "zh": _CHINESE_SYSTEM,
+}
+
 
 class Agent:
     def __init__(
@@ -28,6 +45,7 @@ class Agent:
         model: str = "claude-sonnet-4-6",
         max_tokens: int = 4096,
         long_term_memory=None,
+        language: str = "en",
     ):
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
@@ -37,6 +55,7 @@ class Agent:
         self.max_tokens = max_tokens
         self.memory = Memory()
         self.ltm = long_term_memory  # optional LongTermMemory instance
+        self.language = language if language in LANGUAGE_SYSTEMS else "en"
 
     # ------------------------------------------------------------------
     # Public API
@@ -72,13 +91,19 @@ class Agent:
     # Internal helpers
     # ------------------------------------------------------------------
 
+    def set_language(self, language: str):
+        """Switch the system language. Supported: 'en' (English), 'zh' (Chinese)."""
+        if language in LANGUAGE_SYSTEMS:
+            self.language = language
+
     def _build_system_prompt(self, user_message: str) -> str:
+        base = LANGUAGE_SYSTEMS[self.language]
         if not self.ltm:
-            return _BASE_SYSTEM
+            return base
         relevant = self.ltm.format_for_prompt(user_message)
         if relevant:
-            return f"{_BASE_SYSTEM}\n\n{relevant}"
-        return _BASE_SYSTEM
+            return f"{base}\n\n{relevant}"
+        return base
 
     def _run_loop(self, user_message: str) -> str:
         system = self._build_system_prompt(user_message)
